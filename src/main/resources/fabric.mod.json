@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "craftingtableautosell",
+  "version": "${version}",
+  "name": "Crafting Table Auto Sell",
+  "description": "Client-side mod that safely auto-sells Crafting Tables one at a time via /ah sell 999, using real inventory slot packets. Toggle with Backspace.",
+  "authors": [
+    "you"
+  ],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/craftingtableautosell/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.example.craftingtableautosell.CraftingTableAutoSellClient"
+    ]
+  },
+  "mixins": [],
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "minecraft": "26.2",
+    "fabric-api": "*",
+    "java": ">=25"
+  }
+}
