@@ -6,11 +6,11 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 
@@ -57,12 +57,12 @@ public final class CraftingTableAutoSellClient implements ClientModInitializer {
 
                     dispatcher.register(
                             LiteralArgumentBuilder
-                                    .<SharedSuggestionProvider>literal(
+                                    .<FabricClientCommandSource>literal(
                                             "craftautosellnew"
                                     )
                                     .then(
                                             RequiredArgumentBuilder
-                                                    .<SharedSuggestionProvider, Integer>argument(
+                                                    .<FabricClientCommandSource, Integer>argument(
                                                             "price",
                                                             IntegerArgumentType.integer(1)
                                                     )
@@ -85,7 +85,7 @@ public final class CraftingTableAutoSellClient implements ClientModInitializer {
 
                     dispatcher.register(
                             LiteralArgumentBuilder
-                                    .<SharedSuggestionProvider>literal(
+                                    .<FabricClientCommandSource>literal(
                                             "craftautostopnew"
                                     )
                                     .executes(context -> {
