@@ -1,4 +1,3 @@
-```java
 package com.example.craftingtableautosell;
 
 import net.minecraft.ChatFormatting;
@@ -723,6 +722,3 @@ public final class AutoSellManager {
         );
     }
 }
-```
-
-You will also need the **`CraftingTableAutoSellClient.java`** update for `/craftautosellnew <price>` itself. If you want, I can send that whole file next
