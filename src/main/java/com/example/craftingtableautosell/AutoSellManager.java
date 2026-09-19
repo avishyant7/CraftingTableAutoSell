@@ -1,3 +1,4 @@
+```java
 package com.example.craftingtableautosell;
 
 import net.minecraft.ChatFormatting;
@@ -19,8 +20,10 @@ import java.util.Locale;
 
 public final class AutoSellManager {
 
-    private static final String SELL_COMMAND = "ah sell 999";
-    private static final String TOO_MANY_ITEMS_TRIGGER = "you have too many items listed";
+    private static final int DEFAULT_SELL_PRICE = 999;
+
+    private static final String TOO_MANY_ITEMS_TRIGGER =
+            "you have too many items listed";
 
     private static final int TOO_MANY_ITEMS_WAIT_TICKS = 8 * 20;
     private static final int SALE_TIMEOUT_TICKS = 6 * 20;
@@ -39,7 +42,10 @@ public final class AutoSellManager {
     }
 
     private State state = State.IDLE;
+
     private boolean enabled = false;
+
+    private int sellPrice = DEFAULT_SELL_PRICE;
 
     private int waitTicks = 0;
     private int lockedHotbarSlot = -1;
@@ -54,9 +60,17 @@ public final class AutoSellManager {
         lockedHotbarSlot = -1;
 
         if (enabled) {
-            sendClientMessage(client, "Crafting Table Auto Sell: ON", ChatFormatting.GREEN);
+            sendClientMessage(
+                    client,
+                    "Crafting Table Auto Sell: ON",
+                    ChatFormatting.GREEN
+            );
         } else {
-            sendClientMessage(client, "Crafting Table Auto Sell: OFF", ChatFormatting.RED);
+            sendClientMessage(
+                    client,
+                    "Crafting Table Auto Sell: OFF",
+                    ChatFormatting.RED
+            );
         }
     }
 
@@ -95,6 +109,39 @@ public final class AutoSellManager {
         }
     }
 
+    public void setSellPrice(int price, Minecraft client) {
+        if (price <= 0) {
+            sendClientMessage(
+                    client,
+                    "Price must be greater than 0.",
+                    ChatFormatting.RED
+            );
+            return;
+        }
+
+        sellPrice = price;
+
+        sendClientMessage(
+                client,
+                "Crafting Table Auto Sell price set to $" + price,
+                ChatFormatting.GREEN
+        );
+    }
+
+    public int getSellPrice() {
+        return sellPrice;
+    }
+
+    public void resetSellPrice(Minecraft client) {
+        sellPrice = DEFAULT_SELL_PRICE;
+
+        sendClientMessage(
+                client,
+                "Crafting Table Auto Sell price reset to $" + DEFAULT_SELL_PRICE,
+                ChatFormatting.YELLOW
+        );
+    }
+
     private void tryStartCycle(Minecraft client) {
         LocalPlayer player = client.player;
 
@@ -126,9 +173,11 @@ public final class AutoSellManager {
             return;
         }
 
-        int sourceScreenSlot = inventoryIndexToScreenSlot(sourceInvIndex);
+        int sourceScreenSlot =
+                inventoryIndexToScreenSlot(sourceInvIndex);
 
-        ItemStack sourceStack = menu.getSlot(sourceScreenSlot).getItem();
+        ItemStack sourceStack =
+                menu.getSlot(sourceScreenSlot).getItem();
 
         if (sourceStack.isEmpty()
                 || sourceStack.getItem() != Items.CRAFTING_TABLE) {
@@ -194,7 +243,12 @@ public final class AutoSellManager {
             return false;
         }
 
-        click(client, slot, 0, ContainerInput.PICKUP);
+        click(
+                client,
+                slot,
+                0,
+                ContainerInput.PICKUP
+        );
 
         ItemStack cursor = menu.getCarried();
 
@@ -204,9 +258,15 @@ public final class AutoSellManager {
             return false;
         }
 
-        click(client, slot, 1, ContainerInput.PICKUP);
+        click(
+                client,
+                slot,
+                1,
+                ContainerInput.PICKUP
+        );
 
-        ItemStack handSlotNow = menu.getSlot(slot).getItem();
+        ItemStack handSlotNow =
+                menu.getSlot(slot).getItem();
 
         if (handSlotNow.isEmpty()
                 || handSlotNow.getItem() != Items.CRAFTING_TABLE
@@ -214,7 +274,12 @@ public final class AutoSellManager {
             return false;
         }
 
-        click(client, scratch, 0, ContainerInput.PICKUP);
+        click(
+                client,
+                scratch,
+                0,
+                ContainerInput.PICKUP
+        );
 
         return menu.getCarried().isEmpty();
     }
@@ -251,7 +316,9 @@ public final class AutoSellManager {
         }
 
         int originalCount =
-                menu.getSlot(sourceSlot).getItem().getCount();
+                menu.getSlot(sourceSlot)
+                        .getItem()
+                        .getCount();
 
         click(
                 client,
@@ -260,7 +327,8 @@ public final class AutoSellManager {
                 ContainerInput.PICKUP
         );
 
-        ItemStack cursorAfterPickup = menu.getCarried();
+        ItemStack cursorAfterPickup =
+                menu.getCarried();
 
         if (cursorAfterPickup.isEmpty()
                 || cursorAfterPickup.getItem() != Items.CRAFTING_TABLE
@@ -275,7 +343,8 @@ public final class AutoSellManager {
                 ContainerInput.PICKUP
         );
 
-        ItemStack scratchStack = menu.getSlot(scratch).getItem();
+        ItemStack scratchStack =
+                menu.getSlot(scratch).getItem();
 
         if (scratchStack.isEmpty()
                 || scratchStack.getItem() != Items.CRAFTING_TABLE
@@ -326,7 +395,8 @@ public final class AutoSellManager {
             return false;
         }
 
-        ItemStack mainHand = inventory.getItem(hotbarIndex);
+        ItemStack mainHand =
+                inventory.getItem(hotbarIndex);
 
         return !mainHand.isEmpty()
                 && mainHand.getItem() == Items.CRAFTING_TABLE
@@ -339,7 +409,9 @@ public final class AutoSellManager {
             return;
         }
 
-        client.player.connection.sendCommand(SELL_COMMAND);
+        client.player.connection.sendCommand(
+                "ah sell " + sellPrice
+        );
 
         state = State.AWAITING_SALE_RESULT;
         waitTicks = SALE_TIMEOUT_TICKS;
@@ -357,7 +429,8 @@ public final class AutoSellManager {
         }
 
         ItemStack mainHand =
-                player.getInventory().getItem(lockedHotbarSlot);
+                player.getInventory()
+                        .getItem(lockedHotbarSlot);
 
         boolean handNoLongerHoldsCraftingTable =
                 mainHand.isEmpty()
@@ -408,7 +481,8 @@ public final class AutoSellManager {
         }
 
         ItemStack mainHand =
-                player.getInventory().getItem(lockedHotbarSlot);
+                player.getInventory()
+                        .getItem(lockedHotbarSlot);
 
         if (mainHand.isEmpty()
                 || mainHand.getItem() != Items.CRAFTING_TABLE
@@ -430,7 +504,9 @@ public final class AutoSellManager {
         }
     }
 
-    private void stopBecauseInventoryEmpty(Minecraft client) {
+    private void stopBecauseInventoryEmpty(
+            Minecraft client
+    ) {
         enabled = false;
         state = State.IDLE;
         lockedHotbarSlot = -1;
@@ -453,7 +529,8 @@ public final class AutoSellManager {
 
         sendClientMessage(
                 client,
-                "Crafting Table Auto Sell: OFF (safety stop - " + reason + ")",
+                "Crafting Table Auto Sell: OFF (safety stop - "
+                        + reason + ")",
                 ChatFormatting.RED
         );
     }
@@ -494,10 +571,15 @@ public final class AutoSellManager {
         }
 
         SoundEvent sound =
-                BuiltInRegistries.SOUND_EVENT.getValue(BELL_USE_SOUND_ID);
+                BuiltInRegistries.SOUND_EVENT
+                        .getValue(BELL_USE_SOUND_ID);
 
         if (sound != null) {
-            player.playSound(sound, 1.0f, 1.0f);
+            player.playSound(
+                    sound,
+                    1.0f,
+                    1.0f
+            );
         }
     }
 
@@ -516,11 +598,14 @@ public final class AutoSellManager {
         );
     }
 
-    private int countCraftingTables(Inventory inventory) {
+    private int countCraftingTables(
+            Inventory inventory
+    ) {
         int total = 0;
 
         for (int i = 0; i < 36; i++) {
-            ItemStack stack = inventory.getItem(i);
+            ItemStack stack =
+                    inventory.getItem(i);
 
             if (!stack.isEmpty()
                     && stack.getItem() == Items.CRAFTING_TABLE) {
@@ -531,9 +616,12 @@ public final class AutoSellManager {
         return total;
     }
 
-    private int findCraftingTableSlot(Inventory inventory) {
+    private int findCraftingTableSlot(
+            Inventory inventory
+    ) {
         for (int i = 0; i < 36; i++) {
-            ItemStack stack = inventory.getItem(i);
+            ItemStack stack =
+                    inventory.getItem(i);
 
             if (!stack.isEmpty()
                     && stack.getItem() == Items.CRAFTING_TABLE
@@ -543,7 +631,8 @@ public final class AutoSellManager {
         }
 
         for (int i = 0; i < 36; i++) {
-            ItemStack stack = inventory.getItem(i);
+            ItemStack stack =
+                    inventory.getItem(i);
 
             if (!stack.isEmpty()
                     && stack.getItem() == Items.CRAFTING_TABLE) {
@@ -554,7 +643,9 @@ public final class AutoSellManager {
         return -1;
     }
 
-    private int inventoryIndexToScreenSlot(int inventoryIndex) {
+    private int inventoryIndexToScreenSlot(
+            int inventoryIndex
+    ) {
         if (inventoryIndex < 9) {
             return hotbarScreenSlot(inventoryIndex);
         }
@@ -562,7 +653,9 @@ public final class AutoSellManager {
         return inventoryIndex;
     }
 
-    private int hotbarScreenSlot(int hotbarIndex) {
+    private int hotbarScreenSlot(
+            int hotbarIndex
+    ) {
         return 36 + hotbarIndex;
     }
 
@@ -576,7 +669,9 @@ public final class AutoSellManager {
                 continue;
             }
 
-            if (menu.getSlot(slot).getItem().isEmpty()) {
+            if (menu.getSlot(slot)
+                    .getItem()
+                    .isEmpty()) {
                 return slot;
             }
         }
@@ -586,7 +681,9 @@ public final class AutoSellManager {
                 continue;
             }
 
-            if (menu.getSlot(slot).getItem().isEmpty()) {
+            if (menu.getSlot(slot)
+                    .getItem()
+                    .isEmpty()) {
                 return slot;
             }
         }
@@ -594,7 +691,9 @@ public final class AutoSellManager {
         return -1;
     }
 
-    private void warnCannotSplit(Minecraft client) {
+    private void warnCannotSplit(
+            Minecraft client
+    ) {
         if (warnCooldown > 0) {
             warnCooldown--;
             return;
@@ -619,7 +718,11 @@ public final class AutoSellManager {
         }
 
         client.player.sendSystemMessage(
-                Component.literal(message).withStyle(color)
+                Component.literal(message)
+                        .withStyle(color)
         );
     }
 }
+```
+
+You will also need the **`CraftingTableAutoSellClient.java`** update for `/craftautosellnew <price>` itself. If you want, I can send that whole file next
